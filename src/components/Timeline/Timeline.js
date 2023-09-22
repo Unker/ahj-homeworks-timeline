@@ -21,8 +21,11 @@ export default class TimelineApp {
 
   initializeUI() {
     // Создаем элементы интерфейса.
-    const postContainer = document.createElement("div");
-    postContainer.classList.add("post-container");
+    const timelineContainer = document.createElement("div");
+    timelineContainer.classList.add("timeline-container");
+
+    const postsContainer = document.createElement("div");
+    postsContainer.classList.add("posts-container");
 
     const inputContainer = document.createElement("div");
     inputContainer.classList.add("input-container");
@@ -45,29 +48,18 @@ export default class TimelineApp {
 
     // Добавляем элементы в контейнер ввода
     inputContainer.appendChild(inputField);
-    // inputContainer.appendChild(submitButton);
     inputContainer.appendChild(audioButton);
     inputContainer.appendChild(videoButton);
 
-    postContainer.appendChild(inputContainer);
+    timelineContainer.appendChild(postsContainer);
+    timelineContainer.appendChild(inputContainer);
 
-
-    // Добавляем контейнер в указанный контейнер приложения.
-    this.container.appendChild(postContainer);
+    // Добавляем контейнер в контейнер приложения
+    this.container.appendChild(timelineContainer);
 
     this.inputField = inputField;
+    this.postsContainer = postsContainer;
   }
-
-  // // Обработчик события для отправки текстового поста.
-  // handlePostSubmission() {
-  //   const postContent = this.inputField.value.trim();
-
-  //   if (postContent !== "") {
-  //     // Создаем текстовый пост с введенным контентом.
-  //     this.createTextPost(postContent, this.userLocation);
-  //     this.inputField.value = ""; // Очищаем поле ввода после отправки.
-  //   }
-  // }
 
   // Обработчик события для записи аудио.
   startAudioRecording() {
@@ -201,8 +193,33 @@ export default class TimelineApp {
   }
 
   createTextPost(content, coordinates) {
-    // Создание текстового поста и добавление его в Timeline.
-    // Пост должен содержать контент (текст), координаты и время создания.
+    // Создаем элемент для текстового поста
+    const postElement = document.createElement("div");
+    postElement.classList.add("post");
+
+    // Создаем элемент для отображения текста
+    const textElement = document.createElement("p");
+    textElement.classList.add("post-text");
+    textElement.textContent = content;
+
+    // Создаем элемент для отображения времени
+    const timeElement = document.createElement("div");
+    timeElement.classList.add("post-time");
+    const currentTime = new Date();
+    timeElement.textContent = currentTime.toLocaleString();
+
+    // Создаем элемент для отображения координат
+    const coordinatesElement = document.createElement("div");
+    coordinatesElement.classList.add("post-coordinates");
+    coordinatesElement.textContent = `[${coordinates.latitude}, ${coordinates.longitude}]`;
+
+    // Добавляем элементы к посту
+    postElement.appendChild(textElement);
+    postElement.appendChild(timeElement);
+    postElement.appendChild(coordinatesElement);
+
+    // Добавляем пост в начало ленты
+    this.postsContainer.insertBefore(postElement, this.postsContainer.firstChild);
   }
 
   createAudioPost(audioBlob, coordinates) {

@@ -1,4 +1,4 @@
-.post-container {
+.timeline-container {
   display: flex;
   flex-direction: column;
   margin: 10px;
@@ -7,6 +7,32 @@
   border-radius: 5px;
   background-color: #fff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.posts-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.post {
+  position: relative;
+  border: 1px solid black;
+  margin: 5px 0;
+  border-radius: 10px;
+  padding: 5px 15px;
+  background-color: antiquewhite;
+}
+
+.post-coordinates {
+  font-size: 0.8em;
+}
+
+.post-time {
+  position: absolute;
+  right: 0px;
+  top: 0px;
+  margin: 0.5em;
+  font-size: 0.8em;
 }
 
 .input-container {
