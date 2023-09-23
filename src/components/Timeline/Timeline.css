@@ -50,9 +50,17 @@
   z-index: 1;
 }
 
-.input-container.hide,
+.audio-container {
+  justify-content: end;
+}
+
+/* .input-container.hide,
 .audio-container.hide {
   display: none;
+} */
+
+.audio-timer {
+  min-width: 50px;
 }
 
 .post-input {

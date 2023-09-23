@@ -121,6 +121,14 @@ export default class TimelineApp {
     });
   }
 
+  updateTimer(timerElement) {
+    this.recordingTime++;
+    const minutes = Math.floor(this.recordingTime / 60);
+    const seconds = this.recordingTime % 60;
+    const formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    timerElement.textContent = `${formattedTime}`;
+  }
+
   // Обработчик события для записи аудио.
   async startAudioRecording() {
     // Проверяем доступ к микрофону
@@ -139,6 +147,8 @@ export default class TimelineApp {
       return;
     }
 
+    const timerAudio = this.audioContainer.querySelector(".audio-timer");
+
     this.inputContainer.classList.add('hide');
     this.audioContainer.classList.remove('hide');
 
@@ -152,7 +162,7 @@ export default class TimelineApp {
     });
 
     // Устанавливаем интервал для обновления таймера
-    this.timerInterval = setInterval(() => this.updateTimer(), 1000);
+    this.timerInterval = setInterval(() => this.updateTimer(timerAudio), 1000);
 
     this.audioRecorder.addEventListener('dataavailable', (event) => {
       if (event.data.size > 0) {
@@ -171,7 +181,7 @@ export default class TimelineApp {
       // Останавливаем таймер
       clearInterval(this.timerInterval);
 
-      // Скрывам  аудио контейнер
+      // Скрываем  аудио контейнер
       // todo
     });
   }
