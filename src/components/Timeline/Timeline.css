@@ -2,16 +2,20 @@
   display: flex;
   flex-direction: column;
   margin: 10px;
-  padding: 10px;
+  padding-top: 10px;
   border: 1px solid #ccc;
   border-radius: 5px;
   background-color: #fff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  height: 600px;
 }
 
 .posts-container {
   display: flex;
   flex-direction: column;
+  margin-bottom: auto;
+  overflow: auto;
+  padding: 0 10px;
 }
 
 .post {
@@ -39,6 +43,10 @@
   display: flex;
   flex-direction: row;
   align-items: center;
+  margin-top: auto;
+  padding: 5px;
+  box-shadow: 0px -3px 8px black;
+  z-index: 1;
 }
 
 .post-input {
@@ -64,16 +72,12 @@
   margin: 0 5px;
 }
 
-.post-button.audio-button:hover {
+.post-button.audio-button:hover, .post-button.video-button:hover {
   animation-name: coin;
   animation-duration: 2s;
   animation-iteration-count: infinite;
-}
+  animation-timing-function: ease-in-out;
 
-.post-button.video-button:hover {
-  animation-name: coin;
-  animation-duration: 2s;
-  animation-iteration-count: infinite;
 }
 
 @keyframes coin {
@@ -119,6 +123,7 @@
   border-radius: 5px;
   background-color: #fff;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  position: relative;
 }
 
 .modal-title {
@@ -130,17 +135,18 @@
 .btn {
   padding: 10px 20px;
   margin-right: 10px;
+  margin-top: 10px;
   border-radius: 5px;
   cursor: pointer;
 }
 
-.btn-primary {
+.btn-submit {
   background-color: #007bff;
   color: #fff;
   border: none;
 }
 
-.btn-secondary {
+.btn-close {
   background-color: #6c757d;
   color: #fff;
   border: none;
@@ -153,6 +159,12 @@
   border: 1px solid #ccc;
   border-radius: 5px;
   margin-top: 10px;
+  box-sizing: border-box;
+}
+
+.modal-body-error-message {
+  color: red;
+    font-size: 0.8em;
 }
 
 /* Стили для закрытия модального окна */
@@ -164,8 +176,10 @@
   font-weight: bold;
   color: #000;
   background-color: transparent;
+  border: none;
 }
 
 button.close:hover {
   background-color: transparent;
+  cursor: pointer;
 }

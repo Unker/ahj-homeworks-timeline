@@ -3,32 +3,3 @@ body {
   font-family: Arial, sans-serif;
 }
 
-.ticket-tracker {
-  max-width: 500px;
-  margin: 0 auto;
-  padding: 20px;
-  border: 1px solid #ccc;
-}
-
-.input {
-	display: inline-block;
-	padding: .375rem .75rem;
-	font-size: 1rem;
-	line-height: 1.5;
-	color: #495057;
-	border: 1px solid #ced4da;
-	width: 90%;
-}
-
-ul {
-  list-style: none;
-  padding: 0;
-}
-
-.task-name {
-  flex: 1;
-}
-
-.notFoundMessage {
-  display: none;
-}
