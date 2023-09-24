@@ -1,5 +1,3 @@
-import './Timeline.css';
-
 export default class TimelineApp {
   constructor(container) {
     this.container = container;
@@ -69,7 +67,7 @@ export default class TimelineApp {
     });
 
     const timerAudio = document.createElement("div");
-    timerAudio.classList.add("audio-timer");
+    timerAudio.classList.add("content-timer");
 
     // Добавляем элементы в контейнер аудио
     audioContainer.appendChild(audioButtonOk);
@@ -85,6 +83,43 @@ export default class TimelineApp {
     this.timerInterval = null;
     this.recordingTime = 0;
     this.audioUrl = null;
+
+    // ====== элементы видео записи ======
+    const videoContainer = document.createElement("div");
+    videoContainer.classList.add("video-container", 'hide');
+
+    const videoButtonOk = document.createElement("i");
+    videoButtonOk.classList.add('post-button', 'video-button-ok', 'fa', 'fa-check');
+    videoButtonOk.addEventListener("click", () => {
+      this.stopVideoRecording();
+      createVideoPost(this.videoPlayer);
+    });
+
+    const videoButtonCancel = document.createElement("i");
+    videoButtonCancel.classList.add('post-button', 'video-button-cancel', 'fa', 'fa-xmark');
+    videoButtonCancel.addEventListener("click", () => {
+      this.stopVideoRecording();
+      this.videoPlayer.remove();
+    });
+
+    const timerVideo = document.createElement("div");
+    timerVideo.classList.add("content-timer");
+
+    // Добавляем элементы в контейнер аудио
+    videoContainer.appendChild(videoButtonOk);
+    videoContainer.appendChild(timerVideo);
+    videoContainer.appendChild(videoButtonCancel);
+
+    timelineContainer.appendChild(videoContainer);
+
+    this.videoContainer = videoContainer;
+    this.stream = null;
+    this.videoRecorder = null; // mediaRecorder
+    this.videoChunks = [];
+    this.timerInterval = null;
+    this.recordingTime = 0;
+    this.videoUrl = null;
+    this.videoPlayer = null;
 
   }
 
@@ -129,79 +164,85 @@ export default class TimelineApp {
     timerElement.textContent = `${formattedTime}`;
   }
 
-  // Обработчик события для записи аудио.
-  async startAudioRecording() {
-    // Проверяем доступ к микрофону
+  startAudioRecording() {
+    this.showErrorMessage('Функция записи аудио еще не поддержана');
+  }
+
+  // Обработчик события для записи видео.
+  async startVideoRecording() {
+    // Проверяем доступ к видео устройству
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      console.log("Ваш браузер не поддерживает запись аудио.");
+      console.log("Ваш браузер не поддерживает запись аудио/видео.");
       return;
     }
 
-    // Запрашиваем доступ к микрофону пользователя
+    // если уже идет запись, то игнорируем событие
+    if (this.videoRecorder && this.videoRecorder.state === 'recording') {
+      return;
+    }
+
+    // Запрашиваем доступ к видео устройству пользователя
     try {
-      this.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      this.stream = await navigator.mediaDevices.getUserMedia({ video: true });
     } catch (err) {
-      const errAudioMsg = 'Ошибка при получении доступа к микрофону.';
-      console.error(errAudioMsg, err);
-      this.showErrorMessage(errAudioMsg);
+      const errVideoMsg = 'Ошибка при получении доступа к микрофону.';
+      console.error(errVideoMsg, err);
+      this.showErrorMessage(errVideoMsg);
       return;
     }
 
-    const timerAudio = this.audioContainer.querySelector(".audio-timer");
+    const timerVideo = this.videoContainer.querySelector(".content-timer");
 
     this.inputContainer.classList.add('hide');
-    this.audioContainer.classList.remove('hide');
+    this.videoContainer.classList.remove('hide');
 
-    this.audioRecorder = new MediaRecorder(stream);
+    this.videoRecorder = new MediaRecorder(this.stream);
 
     // Начинаем запись
-    this.audioRecorder.start();
+    this.videoRecorder.start();
 
-    this.audioRecorder.addEventListener("start", () => {
-      console.log("audio record is strted");
+    this.videoRecorder.addEventListener("start", () => {
+      console.log("video record is strted");
     });
 
     // Устанавливаем интервал для обновления таймера
-    this.timerInterval = setInterval(() => this.updateTimer(timerAudio), 1000);
+    this.timerInterval = setInterval(() => this.updateTimer(timerVideo), 1000);
 
-    this.audioRecorder.addEventListener('dataavailable', (event) => {
+    this.videoRecorder.addEventListener('dataavailable', (event) => {
       if (event.data.size > 0) {
-        this.audioChunks.push(event.data);
+        this.videoChunks.push(event.data);
       }
     });
 
     // Слушаем событие stop
-    this.audioRecorder.addEventListener('stop', () => {
+    this.videoRecorder.addEventListener('stop', () => {
       // Объединяем фрагменты аудио в один Blob
-      const audioBlob = new Blob(this.audioChunks, { type: 'audio/wav' });
+      const videoBlob = new Blob(this.videoChunks);
 
       // Создаем объект URL для аудио
-      this.audioUrl = URL.createObjectURL(audioBlob);
+      this.videoUrl = URL.createObjectURL(videoBlob);
 
       // Останавливаем таймер
       clearInterval(this.timerInterval);
 
-      // Скрываем  аудио контейнер
-      // todo
+      console.log(this.videoUrl);
+      this.videoPlayer = document.createElement("video");
+      this.videoPlayer.controls = true; // Добавляем элементы управления для проигрывания
+      this.container.appendChild(this.videoPlayer);
+      this.videoPlayer.src = this.videoUrl;
     });
   }
 
-  stopAudioRecording() {
-    console.log('stop rec audio')
-    if (this.audioRecorder && this.audioRecorder.state === 'recording') {
-      this.audioRecorder.stop();
+  stopVideoRecording() {
+    console.log('stop rec video')
+    if (this.videoRecorder && this.videoRecorder.state === 'recording') {
+      this.videoRecorder.stop();
     }
     if (this.stream) {
       this.stream.getTracks().forEach((track) => track.stop());
     }
     this.inputContainer.classList.remove('hide');
-    this.audioContainer.classList.add('hide');
-  }
-
-
-  // Обработчик события для записи видео.
-  startVideoRecording() {
-    // логика записи видео здесь.
+    this.videoContainer.classList.add('hide');
   }
 
   getUserLocation() {
@@ -218,12 +259,12 @@ export default class TimelineApp {
         },
         (error) => {
           // Обработка ошибки получения координат.
-          this.showLocationError();
+          this.requestManualCoordinates();
         }
       );
     } else {
       // Geolocation не поддерживается браузером.
-      this.showLocationError();
+      this.requestManualCoordinates();
     }
   }
 
@@ -245,32 +286,7 @@ export default class TimelineApp {
     });
   }
 
-  parseCoordinates(input) {
-    // Регулярное выражение для поиска координат в формате "широта, долгота".
-    const regex = /^([-+]?\d+\.\d+),\s*([-+]?\d+\.\d+)$/;
-
-    // Регулярное выражение для поиска координат в формате "[широта, долгота]".
-    const squareBracketsRegex = /^\[([-+]?\d+\.\d+),\s*([-+]?\d+\.\d+)\]$/;
-
-    // Попытка сопоставления введенного текста с регулярными выражениями.
-    const match = input.match(regex) || input.match(squareBracketsRegex);
-
-    if (match) {
-      // Если есть совпадение, извлекаем широту и долготу.
-      const latitude = parseFloat(match[1]);
-      const longitude = parseFloat(match[2]);
-
-      if (!isNaN(latitude) && !isNaN(longitude)) {
-        // Проверяем, что полученные значения чисел корректны.
-        return { latitude, longitude };
-      }
-    }
-
-    // Если формат не соответствует ожидаемому
-    return null;
-  }
-
-  showLocationError() {
+  requestManualCoordinates() {
     // Создаем элемент модального окна.
     const modal = document.createElement("div");
     const patternCoordinates = String.raw`^\[?([-+]?\d+\.\d+),\s*([-+]?\d+\.\d+)\]?$`;
@@ -300,7 +316,6 @@ export default class TimelineApp {
       </form>
     `;
 
-    // Добавляем модальное окно в body документа.
     document.body.appendChild(modal);
 
     modal.classList.add("show");
@@ -339,7 +354,7 @@ export default class TimelineApp {
 
       }
 
-      errMsg.textContent = 'Введите координаты в формате: xx.xxxxx, yy.yyyyy   или  [xx.xxxxx, yy.yyyyy]';
+      errMsg.textContent = 'Введите координаты в формате: xx.xxxxx, yy.yyyyy или [xx.xxxxx, yy.yyyyy]';
       console.log('submit');
     });
 
@@ -392,28 +407,22 @@ export default class TimelineApp {
     this.posts.push(postElement);
   }
 
-  createAudioPost(audioBlob, coordinates) {
-    // Создаем элемент для аудио поста
+  createVideoPost(videoPlayer, coordinates) {
     const postElement = document.createElement("div");
     postElement.classList.add("post");
 
     // Создаем элемент для отображения аудио контента
-    const audioElement = document.createElement("audio");
-    audioElement.controls = true; // Добавляем элементы управления для проигрывания
-    audioElement.src = audioContent;
+    // const videoPlayer = document.createElement("video");
+    // videoPlayer.controls = true; // Добавляем элементы управления для проигрывания
+    // videoPlayer.src = videoURL;
 
     // Добавляем элементы к посту
-    postElement.appendChild(audioElement);
+    postElement.appendChild(videoPlayer);
     postElement.appendChild(this.createTimeElement());
     postElement.appendChild(this.createCoordinatesElement(coordinates));
 
     // Добавляем пост в начало ленты
     this.postsContainer.insertBefore(postElement, this.postsContainer.firstChild);
-  }
-
-  createVideoPost(videoBlob, coordinates) {
-    // Создание видео поста и добавление его в Timeline.
-    // Пост должен содержать видео, координаты и время создания.
   }
 
   displayPosts() {

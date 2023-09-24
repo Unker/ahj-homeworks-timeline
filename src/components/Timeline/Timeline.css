@@ -40,7 +40,8 @@
 }
 
 .input-container,
-.audio-container {
+.audio-container,
+.video-container {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -50,16 +51,18 @@
   z-index: 1;
 }
 
-.audio-container {
+.audio-container,
+.video-container {
   justify-content: end;
 }
 
 /* .input-container.hide,
-.audio-container.hide {
+.audio-container.hide,
+.video-container.hide {
   display: none;
 } */
 
-.audio-timer {
+.content-timer {
   min-width: 50px;
 }
 
