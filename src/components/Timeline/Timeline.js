@@ -88,11 +88,15 @@ export default class TimelineApp {
     const videoContainer = document.createElement("div");
     videoContainer.classList.add("video-container", 'hide');
 
+    const videoControls = document.createElement("div");
+    videoControls.classList.add("video-controls", 'hide');
+
+
     const videoButtonOk = document.createElement("i");
     videoButtonOk.classList.add('post-button', 'video-button-ok', 'fa', 'fa-check');
     videoButtonOk.addEventListener("click", () => {
       this.stopVideoRecording();
-      createVideoPost(this.videoPlayer);
+      this.createVideoPost(this.videoPlayer, this.userCoords);
     });
 
     const videoButtonCancel = document.createElement("i");
@@ -106,9 +110,11 @@ export default class TimelineApp {
     timerVideo.classList.add("content-timer");
 
     // Добавляем элементы в контейнер аудио
-    videoContainer.appendChild(videoButtonOk);
-    videoContainer.appendChild(timerVideo);
-    videoContainer.appendChild(videoButtonCancel);
+    videoControls.appendChild(videoButtonOk);
+    videoControls.appendChild(timerVideo);
+    videoControls.appendChild(videoButtonCancel);
+
+    videoContainer.appendChild(videoControls);    
 
     timelineContainer.appendChild(videoContainer);
 
@@ -193,12 +199,36 @@ export default class TimelineApp {
 
     const timerVideo = this.videoContainer.querySelector(".content-timer");
 
+    this.videoPlayer = document.createElement("video");
+    this.videoPlayer.classList.add('video-player');
+    this.videoPlayer.controls = true; // Добавляем элементы управления для проигрывания
+    this.videoPlayer.muted = true;
+    this.videoContainer.insertBefore(this.videoPlayer, this.videoContainer.firstChild);
+
     this.inputContainer.classList.add('hide');
     this.videoContainer.classList.remove('hide');
 
-    this.videoRecorder = new MediaRecorder(this.stream);
+    // Отображение видео
+    this.videoPlayer.srcObject = this.stream;
+    this.videoPlayer.play();    // Запускаем видеопоток в видеоплеере
 
-    // Начинаем запись
+    // Создаем и обновляем изображение видеоплеера в requestAnimationFrame
+    const updateVideoFrame = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = this.videoPlayer.videoWidth;
+      canvas.height = this.videoPlayer.videoHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(this.videoPlayer, 0, 0, canvas.width, canvas.height);
+
+      // Продолжаем обновлять кадры в requestAnimationFrame
+      requestAnimationFrame(updateVideoFrame);
+    };
+
+    // Начинаем обновление кадров
+    requestAnimationFrame(updateVideoFrame);
+
+    // Запись
+    this.videoRecorder = new MediaRecorder(this.stream);
     this.videoRecorder.start();
 
     this.videoRecorder.addEventListener("start", () => {
@@ -221,20 +251,16 @@ export default class TimelineApp {
 
       // Создаем объект URL для аудио
       this.videoUrl = URL.createObjectURL(videoBlob);
+      this.videoPlayer.src = this.videoUrl;
 
       // Останавливаем таймер
       clearInterval(this.timerInterval);
-
-      console.log(this.videoUrl);
-      this.videoPlayer = document.createElement("video");
-      this.videoPlayer.controls = true; // Добавляем элементы управления для проигрывания
-      this.container.appendChild(this.videoPlayer);
-      this.videoPlayer.src = this.videoUrl;
     });
   }
 
   stopVideoRecording() {
     console.log('stop rec video')
+    this.recordingTime = 0;
     if (this.videoRecorder && this.videoRecorder.state === 'recording') {
       this.videoRecorder.stop();
     }
