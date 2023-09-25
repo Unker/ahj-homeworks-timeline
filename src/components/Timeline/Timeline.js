@@ -22,6 +22,21 @@ export default class TimelineApp {
     const inputField = document.createElement("textarea");
     inputField.placeholder = "Введите сообщение...";
     inputField.classList.add("post-input");
+    // Обработчик события для поля ввода для создания текстового поста.
+    inputField.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        const postContent = this.inputField.value.trim();
+
+        if (postContent !== "") {
+          // Создаем текстовый пост с указанными координатами.
+          this.createTextPost(postContent, this.userCoords);
+
+          // Очищаем поле ввода после создания поста.
+          this.inputField.value = "";
+        }
+      }
+    });
 
     const audioButton = document.createElement("i");
     audioButton.classList.add('post-button', 'audio-button', 'fa', 'fa-microphone');
@@ -114,7 +129,7 @@ export default class TimelineApp {
     videoControls.appendChild(timerVideo);
     videoControls.appendChild(videoButtonCancel);
 
-    videoContainer.appendChild(videoControls);    
+    videoContainer.appendChild(videoControls);
 
     timelineContainer.appendChild(videoContainer);
 
@@ -260,54 +275,50 @@ export default class TimelineApp {
     this.videoContainer.classList.add('hide');
   }
 
-  getUserLocation() {
-    if ("geolocation" in navigator) {
-      // Запрос координат пользователя через Geolocation API.
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          console.log('position', position)
-          this.userCoords = {
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-          };
-          this.handleUserLocation(this.userCoords);
-        },
-        (error) => {
-          // Обработка ошибки получения координат.
-          this.requestManualCoordinates();
-        }
-      );
-    } else {
-      // Geolocation не поддерживается браузером.
-      this.requestManualCoordinates();
+  async getUserLocation() {
+    try {
+      const coordinates = await this.getUserLocationFromApi();
+      return coordinates;
+    } catch (error) {
+      console.error('Ошибка получения координат через API:', error);
+      const manualCoordinates = await this.requestManualCoordinates();
+      return manualCoordinates;
     }
   }
 
-  handleUserLocation(coords) {
-    // Обработчик события для поля ввода для создания текстового поста.
-    this.inputField.addEventListener("keydown", (event) => {
-      if (event.key === "Enter" && !event.shiftKey) {
-        event.preventDefault();
-        const postContent = this.inputField.value.trim();
-
-        if (postContent !== "") {
-          // Создаем текстовый пост с указанными координатами.
-          this.createTextPost(postContent, coords);
-
-          // Очищаем поле ввода после создания поста.
-          this.inputField.value = "";
-        }
+  async getUserLocationFromApi() {
+    return new Promise((resolve, reject) => {
+      if ("geolocation" in navigator) {
+        // Запрос координат пользователя через Geolocation API.
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            console.log('position', position)
+            this.userCoords = {
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude,
+            };
+            resolve(userCoords); // Разрешаем Promise с координатами
+          },
+          (error) => {
+            // Обработка ошибки получения координат.
+            reject(error); // Отклоняем Promise с ошибкой
+          }
+        );
+      } else {
+        // Geolocation не поддерживается браузером.
+        reject(new Error('Geolocation не поддерживается браузером.'));
       }
     });
   }
 
-  requestManualCoordinates() {
-    // Создаем элемент модального окна.
-    const modal = document.createElement("div");
-    const patternCoordinates = String.raw`^\[?([-+]?\d+\.\d+),\s*([-+]?\d+\.\d+)\]?$`;
-    const regexCoordinates = new RegExp(patternCoordinates);
-    modal.classList.add("modal");
-    modal.innerHTML = `
+  async requestManualCoordinates() {
+    return new Promise((resolve, reject) => {
+      // Создаем элемент модального окна.
+      const modal = document.createElement("div");
+      const patternCoordinates = String.raw`^\[?([-+]?\d+\.\d+),\s*([-+]?\d+\.\d+)\]?$`;
+      const regexCoordinates = new RegExp(patternCoordinates);
+      modal.classList.add("modal");
+      modal.innerHTML = `
       <form novalidate class="form-modal-location">
         <div class="modal-dialog">
           <div class="modal-content">
@@ -331,56 +342,67 @@ export default class TimelineApp {
       </form>
     `;
 
-    document.body.appendChild(modal);
+      document.body.appendChild(modal);
 
-    modal.classList.add("show");
-    modal.style.display = "block";
+      modal.classList.add("show");
+      modal.style.display = "block";
 
-    const form = document.querySelector('.form-modal-location');
-    const closeBtn = form.querySelector('.btn-close');
-    const close = form.querySelector('.close');
-    const errMsg = form.querySelector(".modal-body-error-message");
-    errMsg.textContent = '';
+      const form = document.querySelector('.form-modal-location');
+      const closeBtn = form.querySelector('.btn-close');
+      const close = form.querySelector('.close');
+      const errMsg = form.querySelector(".modal-body-error-message");
+      errMsg.textContent = '';
 
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
 
-      if (form.checkValidity()) {
-        const manualCoordinatesInput = document.querySelector(".manual-coordinates");
-        const match = manualCoordinatesInput.value.trim().match(regexCoordinates);
-        console.log('valid');
-        console.log('match', match);
-        if (match) {
-          // Если есть совпадение, извлекаем широту и долготу.
-          const latitude = parseFloat(match[1]);
-          const longitude = parseFloat(match[2]);
-          this.handleUserLocation({ latitude, longitude });
-          console.log({ latitude, longitude });
-          modal.remove();
-          return;
+        if (form.checkValidity()) {
+          const manualCoordinatesInput = document.querySelector(".manual-coordinates");
+          const match = manualCoordinatesInput.value.trim().match(regexCoordinates);
+          console.log('valid');
+          console.log('match', match);
+          if (match) {
+            // Если есть совпадение, извлекаем широту и долготу.
+            const latitude = parseFloat(match[1]);
+            const longitude = parseFloat(match[2]);
+            // this.handleUserLocation({ latitude, longitude });
+            this.userCoords = {
+              latitude,
+              longitude,
+            };
+            console.log({ latitude, longitude });
+            modal.remove();
+            resolve(this.userCoords);
+          }
+        } else {
+          console.log('invalid');
+          // Отображаем сообщение об ошибке, если введены некорректные координаты.
+
         }
-        // if (!isNaN(latitude) && !isNaN(longitude)) {
-        //   // Проверяем, что полученные значения чисел корректны.
-        //   return { latitude, longitude };
-        // }
-      } else {
-        console.log('invalid');
-        // Отображаем сообщение об ошибке, если введены некорректные координаты.
 
-      }
+        errMsg.textContent = 'Введите координаты в формате: xx.xxxxx, yy.yyyyy или [xx.xxxxx, yy.yyyyy]';
+        console.log('submit');
+      });
 
-      errMsg.textContent = 'Введите координаты в формате: xx.xxxxx, yy.yyyyy или [xx.xxxxx, yy.yyyyy]';
-      console.log('submit');
-    });
+      closeBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        modal.remove();
+        this.userCoords = undefined;
+        resolve({
+          latitude: 'x',
+          longitude: 'y',
+        });
+      });
 
-    closeBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      modal.remove();
-    });
-
-    close.addEventListener('click', (e) => {
-      e.preventDefault();
-      modal.remove();
+      close.addEventListener('click', (e) => {
+        e.preventDefault();
+        modal.remove();
+        this.userCoords = undefined;
+        resolve({
+          latitude: 'x',
+          longitude: 'y',
+        });
+      });
     });
   }
 
@@ -394,14 +416,26 @@ export default class TimelineApp {
   }
 
   // Создаем элемент для отображения координат
-  createCoordinatesElement(coordinates) {
+  async createCoordinatesElement(coordinates) {
+    console.log('coordinates', coordinates)
     const coordinatesElement = document.createElement("div");
     coordinatesElement.classList.add("post-coordinates");
-    coordinatesElement.textContent = `[${coordinates.latitude}, ${coordinates.longitude}]`;
-    return coordinatesElement;
+
+    return new Promise(async (resolve, reject) => {
+      if (!coordinates || typeof (coordinates.latitude) !== 'number' || typeof (coordinates.longitude) !== 'number') {
+        coordinates = await this.getUserLocation();
+      }
+
+      coordinatesElement.textContent = `[${coordinates.latitude}, ${coordinates.longitude}]`;
+      resolve(coordinatesElement);
+    },
+      (error) => {
+        coordinatesElement.textContent = `[x, y]`;
+        reject(coordinatesElement);
+      });
   }
 
-  createTextPost(content, coordinates) {
+  async createTextPost(content, coordinates) {
     // Создаем элемент для текстового поста
     const postElement = document.createElement("div");
     postElement.classList.add("post");
@@ -414,7 +448,8 @@ export default class TimelineApp {
     // Добавляем элементы к посту
     postElement.appendChild(textElement);
     postElement.appendChild(this.createTimeElement());
-    postElement.appendChild(this.createCoordinatesElement(coordinates));
+    const coordinatesElement = await this.createCoordinatesElement(coordinates)
+    postElement.appendChild(coordinatesElement);
 
     // Добавляем пост в начало ленты
     this.postsContainer.insertBefore(postElement, this.postsContainer.firstChild);
@@ -422,25 +457,17 @@ export default class TimelineApp {
     this.posts.push(postElement);
   }
 
-  createVideoPost(videoPlayer, coordinates) {
+  async createVideoPost(videoPlayer, coordinates) {
     const postElement = document.createElement("div");
     postElement.classList.add("post");
-
-    // Создаем элемент для отображения аудио контента
-    // const videoPlayer = document.createElement("video");
-    // videoPlayer.controls = true; // Добавляем элементы управления для проигрывания
-    // videoPlayer.src = videoURL;
 
     // Добавляем элементы к посту
     postElement.appendChild(videoPlayer);
     postElement.appendChild(this.createTimeElement());
-    postElement.appendChild(this.createCoordinatesElement(coordinates));
+    const coordinatesElement = await this.createCoordinatesElement(coordinates)
+    postElement.appendChild(coordinatesElement);
 
     // Добавляем пост в начало ленты
     this.postsContainer.insertBefore(postElement, this.postsContainer.firstChild);
-  }
-
-  displayPosts() {
-    // Отображение постов в контейнере, с учетом их формата.
   }
 }
