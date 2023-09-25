@@ -1,4 +1,4 @@
-import TimelineApp from "../Timeline";
+import TimelineApp from '../Timeline';
 
 const validCoordinates = [
   '51.50851, -0.12572',
@@ -74,7 +74,7 @@ describe('requestManualCoordinates', () => {
     // Проверяем, что сообщение об ошибке отображается
     const errorMessage = document.querySelector('.modal-body-error-message');
     expect(errorMessage.textContent).toBe(
-      'Введите координаты в формате: xx.xxxxx, yy.yyyyy или [xx.xxxxx, yy.yyyyy]'
+      'Введите координаты в формате: xx.xxxxx, yy.yyyyy или [xx.xxxxx, yy.yyyyy]',
     );
 
     // Проверяем, что метод handleUserLocation не был вызван

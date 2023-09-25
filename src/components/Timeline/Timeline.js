@@ -10,44 +10,44 @@ export default class TimelineApp {
 
   initializeUI() {
     // Создаем элементы интерфейса.
-    const timelineContainer = document.createElement("div");
-    timelineContainer.classList.add("timeline-container");
+    const timelineContainer = document.createElement('div');
+    timelineContainer.classList.add('timeline-container');
 
-    const postsContainer = document.createElement("div");
-    postsContainer.classList.add("posts-container");
+    const postsContainer = document.createElement('div');
+    postsContainer.classList.add('posts-container');
 
-    const inputContainer = document.createElement("div");
-    inputContainer.classList.add("input-container");
+    const inputContainer = document.createElement('div');
+    inputContainer.classList.add('input-container');
 
-    const inputField = document.createElement("textarea");
-    inputField.placeholder = "Введите сообщение...";
-    inputField.classList.add("post-input");
+    const inputField = document.createElement('textarea');
+    inputField.placeholder = 'Введите сообщение...';
+    inputField.classList.add('post-input');
     // Обработчик события для поля ввода для создания текстового поста.
-    inputField.addEventListener("keydown", (event) => {
-      if (event.key === "Enter" && !event.shiftKey) {
+    inputField.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' && !event.shiftKey) {
         event.preventDefault();
         const postContent = this.inputField.value.trim();
 
-        if (postContent !== "") {
+        if (postContent !== '') {
           // Создаем текстовый пост с указанными координатами.
           this.createTextPost(postContent, this.userCoords);
 
           // Очищаем поле ввода после создания поста.
-          this.inputField.value = "";
+          this.inputField.value = '';
         }
       }
     });
 
-    const audioButton = document.createElement("i");
+    const audioButton = document.createElement('i');
     audioButton.classList.add('post-button', 'audio-button', 'fa', 'fa-microphone');
     audioButton.classList.add('not-implemented');
-    audioButton.addEventListener("click", () => {
+    audioButton.addEventListener('click', () => {
       this.startAudioRecording();
     });
 
-    const videoButton = document.createElement("i");
+    const videoButton = document.createElement('i');
     videoButton.classList.add('post-button', 'video-button', 'fa', 'fa-video-camera');
-    videoButton.addEventListener("click", () => {
+    videoButton.addEventListener('click', () => {
       this.startVideoRecording();
     });
 
@@ -67,23 +67,23 @@ export default class TimelineApp {
     this.postsContainer = postsContainer;
 
     // ====== элементы аудио записи ======
-    const audioContainer = document.createElement("div");
-    audioContainer.classList.add("audio-container", 'hide');
+    const audioContainer = document.createElement('div');
+    audioContainer.classList.add('audio-container', 'hide');
 
-    const audioButtonOk = document.createElement("i");
+    const audioButtonOk = document.createElement('i');
     audioButtonOk.classList.add('post-button', 'audio-button-ok', 'fa', 'fa-check');
-    audioButtonOk.addEventListener("click", () => {
+    audioButtonOk.addEventListener('click', () => {
       this.stopAudioRecording();
     });
 
-    const audioButtonCancel = document.createElement("i");
+    const audioButtonCancel = document.createElement('i');
     audioButtonCancel.classList.add('post-button', 'video-button-cancel', 'fa', 'fa-xmark');
-    audioButtonCancel.addEventListener("click", () => {
+    audioButtonCancel.addEventListener('click', () => {
       this.stopAudioRecording();
     });
 
-    const timerAudio = document.createElement("div");
-    timerAudio.classList.add("content-timer");
+    const timerAudio = document.createElement('div');
+    timerAudio.classList.add('content-timer');
 
     // Добавляем элементы в контейнер аудио
     audioContainer.appendChild(audioButtonOk);
@@ -101,29 +101,28 @@ export default class TimelineApp {
     this.audioUrl = null;
 
     // ====== элементы видео записи ======
-    const videoContainer = document.createElement("div");
-    videoContainer.classList.add("video-container", 'hide');
+    const videoContainer = document.createElement('div');
+    videoContainer.classList.add('video-container', 'hide');
 
-    const videoControls = document.createElement("div");
-    videoControls.classList.add("video-controls", 'hide');
+    const videoControls = document.createElement('div');
+    videoControls.classList.add('video-controls', 'hide');
 
-
-    const videoButtonOk = document.createElement("i");
+    const videoButtonOk = document.createElement('i');
     videoButtonOk.classList.add('post-button', 'video-button-ok', 'fa', 'fa-check');
-    videoButtonOk.addEventListener("click", () => {
+    videoButtonOk.addEventListener('click', () => {
       this.stopVideoRecording();
       this.createVideoPost(this.videoPlayer, this.userCoords);
     });
 
-    const videoButtonCancel = document.createElement("i");
+    const videoButtonCancel = document.createElement('i');
     videoButtonCancel.classList.add('post-button', 'video-button-cancel', 'fa', 'fa-xmark');
-    videoButtonCancel.addEventListener("click", () => {
+    videoButtonCancel.addEventListener('click', () => {
       this.stopVideoRecording();
       this.videoPlayer.remove();
     });
 
-    const timerVideo = document.createElement("div");
-    timerVideo.classList.add("content-timer");
+    const timerVideo = document.createElement('div');
+    timerVideo.classList.add('content-timer');
 
     // Добавляем элементы в контейнер аудио
     videoControls.appendChild(videoButtonOk);
@@ -142,10 +141,9 @@ export default class TimelineApp {
     this.recordingTime = 0;
     this.videoUrl = null;
     this.videoPlayer = null;
-
   }
 
-  showErrorMessage(message) {
+  static showErrorMessage(message) {
     // Создаем элементы модального окна
     const modalContainer = document.createElement('div');
     modalContainer.classList.add('error-modal-container');
@@ -178,23 +176,26 @@ export default class TimelineApp {
     });
   }
 
-  updateTimer(timerElement) {
-    this.recordingTime++;
+  updateTimer(selector) {
+    const timerElement = this.videoContainer.querySelector(selector);
+    this.recordingTime += 1;
     const minutes = Math.floor(this.recordingTime / 60);
     const seconds = this.recordingTime % 60;
     const formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-    timerElement.textContent = `${formattedTime}`;
+    const newTimerText = `${formattedTime}`;
+    timerElement.textContent = newTimerText;
   }
 
   startAudioRecording() {
-    this.showErrorMessage('Функция записи аудио еще не поддержана');
+    this.audioUrl = null;
+    TimelineApp.showErrorMessage('Функция записи аудио еще не поддержана');
   }
 
   // Обработчик события для записи видео.
   async startVideoRecording() {
     // Проверяем доступ к видео устройству
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      console.log("Ваш браузер не поддерживает запись аудио/видео.");
+      console.log('Ваш браузер не поддерживает запись аудио/видео.');
       return;
     }
 
@@ -209,13 +210,13 @@ export default class TimelineApp {
     } catch (err) {
       const errVideoMsg = 'Ошибка при получении доступа к микрофону.';
       console.error(errVideoMsg, err);
-      this.showErrorMessage(errVideoMsg);
+      TimelineApp.showErrorMessage(errVideoMsg);
       return;
     }
 
-    const timerVideo = this.videoContainer.querySelector(".content-timer");
+    // const timerVideo = this.videoContainer.querySelector('.content-timer');
 
-    this.videoPlayer = document.createElement("video");
+    this.videoPlayer = document.createElement('video');
     this.videoPlayer.classList.add('video-player');
     this.videoPlayer.controls = true; // Добавляем элементы управления для проигрывания
     this.videoPlayer.muted = true;
@@ -226,18 +227,18 @@ export default class TimelineApp {
 
     // Отображение видео
     this.videoPlayer.srcObject = this.stream;
-    this.videoPlayer.play();    // Запускаем видеопоток в видеоплеере
+    this.videoPlayer.play(); // Запускаем видеопоток в видеоплеере
 
     // Запись
     this.videoRecorder = new MediaRecorder(this.stream);
     this.videoRecorder.start();
 
-    this.videoRecorder.addEventListener("start", () => {
-      console.log("video record is strted");
+    this.videoRecorder.addEventListener('start', () => {
+      console.log('video record is strted');
     });
 
     // Устанавливаем интервал для обновления таймера
-    this.timerInterval = setInterval(() => this.updateTimer(timerVideo), 1000);
+    this.timerInterval = setInterval(() => this.updateTimer('.content-timer'), 1000);
 
     this.videoRecorder.addEventListener('dataavailable', (event) => {
       if (event.data.size > 0) {
@@ -261,7 +262,7 @@ export default class TimelineApp {
   }
 
   stopVideoRecording() {
-    console.log('stop rec video')
+    console.log('stop rec video');
     this.recordingTime = 0;
     if (this.videoRecorder && this.videoRecorder.state === 'recording') {
       this.videoRecorder.stop();
@@ -289,21 +290,21 @@ export default class TimelineApp {
 
   async getUserLocationFromApi() {
     return new Promise((resolve, reject) => {
-      if ("geolocation" in navigator) {
+      if ('geolocation' in navigator) {
         // Запрос координат пользователя через Geolocation API.
         navigator.geolocation.getCurrentPosition(
           (position) => {
-            console.log('position', position)
+            console.log('position', position);
             this.userCoords = {
               latitude: position.coords.latitude,
               longitude: position.coords.longitude,
             };
-            resolve(userCoords); // Разрешаем Promise с координатами
+            resolve(this.userCoords); // Разрешаем Promise с координатами
           },
           (error) => {
             // Обработка ошибки получения координат.
             reject(error); // Отклоняем Promise с ошибкой
-          }
+          },
         );
       } else {
         // Geolocation не поддерживается браузером.
@@ -315,10 +316,10 @@ export default class TimelineApp {
   async requestManualCoordinates() {
     return new Promise((resolve, reject) => {
       // Создаем элемент модального окна.
-      const modal = document.createElement("div");
+      const modal = document.createElement('div');
       const patternCoordinates = String.raw`^\[?([-+]?\d+\.\d+),\s*([-+]?\d+\.\d+)\]?$`;
       const regexCoordinates = new RegExp(patternCoordinates);
-      modal.classList.add("modal");
+      modal.classList.add('modal');
       modal.innerHTML = `
       <form novalidate class="form-modal-location">
         <div class="modal-dialog">
@@ -331,7 +332,7 @@ export default class TimelineApp {
             </div>
             <div class="modal-body">
               Координаты недоступны. Вы можете ввести координаты вручную:
-              <input type="text" class="manual-coordinates" placeholder="Введите координаты" required pattern="^\[?([-+]?\d+\.\d+),\s*([-+]?\d+\.\d+)\]?$">
+              <input type="text" class="manual-coordinates" placeholder="Введите координаты" required>
               <div class="modal-body-error-message"></div>  
             </div>
             <div class="modal-footer">
@@ -345,20 +346,20 @@ export default class TimelineApp {
 
       document.body.appendChild(modal);
 
-      modal.classList.add("show");
-      modal.style.display = "block";
+      modal.classList.add('show');
+      modal.style.display = 'block';
 
       const form = document.querySelector('.form-modal-location');
       const closeBtn = form.querySelector('.btn-close');
       const close = form.querySelector('.close');
-      const errMsg = form.querySelector(".modal-body-error-message");
+      const errMsg = form.querySelector('.modal-body-error-message');
       errMsg.textContent = '';
 
       form.addEventListener('submit', (e) => {
         e.preventDefault();
 
         if (form.checkValidity()) {
-          const manualCoordinatesInput = document.querySelector(".manual-coordinates");
+          const manualCoordinatesInput = document.querySelector('.manual-coordinates');
           const match = manualCoordinatesInput.value.trim().match(regexCoordinates);
           console.log('valid');
           console.log('match', match);
@@ -378,7 +379,6 @@ export default class TimelineApp {
         } else {
           console.log('invalid');
           // Отображаем сообщение об ошибке, если введены некорректные координаты.
-
         }
 
         errMsg.textContent = 'Введите координаты в формате: xx.xxxxx, yy.yyyyy или [xx.xxxxx, yy.yyyyy]';
@@ -408,9 +408,9 @@ export default class TimelineApp {
   }
 
   // Создаем элемент для отображения времени
-  createTimeElement() {
-    const timeElement = document.createElement("div");
-    timeElement.classList.add("post-time");
+  static createTimeElement() {
+    const timeElement = document.createElement('div');
+    timeElement.classList.add('post-time');
     const currentTime = new Date();
     timeElement.textContent = currentTime.toLocaleString();
     return timeElement;
@@ -418,38 +418,43 @@ export default class TimelineApp {
 
   // Создаем элемент для отображения координат
   async createCoordinatesElement(coordinates) {
-    console.log('coordinates', coordinates)
-    const coordinatesElement = document.createElement("div");
-    coordinatesElement.classList.add("post-coordinates");
+    console.log('coordinates', coordinates);
+    const coordinatesElement = document.createElement('div');
+    coordinatesElement.classList.add('post-coordinates');
 
-    return new Promise(async (resolve, reject) => {
-      if (!coordinates || typeof (coordinates.latitude) !== 'number' || typeof (coordinates.longitude) !== 'number') {
-        coordinates = await this.getUserLocation();
+    let coord = coordinates;
+
+    if (!coord || typeof (coord.latitude) !== 'number' || typeof (coord.longitude) !== 'number') {
+      try {
+        coord = await this.getUserLocation();
+      } catch (error) {
+        coord = null; // Обнуляем координаты в случае ошибки
       }
+    }
 
-      coordinatesElement.textContent = `[${coordinates.latitude}, ${coordinates.longitude}]`;
-      resolve(coordinatesElement);
-    },
-      (error) => {
-        coordinatesElement.textContent = `[x, y]`;
-        reject(coordinatesElement);
-      });
+    if (coord) {
+      coordinatesElement.textContent = `[${coord.latitude}, ${coord.longitude}]`;
+    } else {
+      coordinatesElement.textContent = '[x, y]';
+    }
+
+    return coordinatesElement;
   }
 
   async createTextPost(content, coordinates) {
     // Создаем элемент для текстового поста
-    const postElement = document.createElement("div");
-    postElement.classList.add("post");
+    const postElement = document.createElement('div');
+    postElement.classList.add('post');
 
     // Создаем элемент для отображения текста
-    const textElement = document.createElement("p");
-    textElement.classList.add("post-text");
+    const textElement = document.createElement('p');
+    textElement.classList.add('post-text');
     textElement.textContent = content;
 
     // Добавляем элементы к посту
     postElement.appendChild(textElement);
-    postElement.appendChild(this.createTimeElement());
-    const coordinatesElement = await this.createCoordinatesElement(coordinates)
+    postElement.appendChild(TimelineApp.createTimeElement());
+    const coordinatesElement = await this.createCoordinatesElement(coordinates);
     postElement.appendChild(coordinatesElement);
 
     // Добавляем пост в начало ленты
@@ -459,13 +464,13 @@ export default class TimelineApp {
   }
 
   async createVideoPost(videoPlayer, coordinates) {
-    const postElement = document.createElement("div");
-    postElement.classList.add("post");
+    const postElement = document.createElement('div');
+    postElement.classList.add('post');
 
     // Добавляем элементы к посту
     postElement.appendChild(videoPlayer);
-    postElement.appendChild(this.createTimeElement());
-    const coordinatesElement = await this.createCoordinatesElement(coordinates)
+    postElement.appendChild(TimelineApp.createTimeElement());
+    const coordinatesElement = await this.createCoordinatesElement(coordinates);
     postElement.appendChild(coordinatesElement);
 
     // Добавляем пост в начало ленты

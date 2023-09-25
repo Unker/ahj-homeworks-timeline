@@ -16,7 +16,7 @@ describe('requestManualCoordinates', () => {
   });
 
   it('should handle valid coordinates input', async () => {
-    await page.goto('http://localhost:8080'); 
+    await page.goto('http://localhost:8080');
 
     // Находим элементы на странице
     const coordinatesInput = await page.$('.manual-coordinates');
@@ -33,7 +33,7 @@ describe('requestManualCoordinates', () => {
   });
 
   it('should handle invalid coordinates input', async () => {
-    await page.goto('http://localhost:8080'); 
+    await page.goto('http://localhost:8080');
 
     // Находим элементы на странице
     const coordinatesInput = await page.$('.manual-coordinates');
@@ -49,7 +49,7 @@ describe('requestManualCoordinates', () => {
     const errorMessage = await page.$('.modal-body-error-message');
     const errorMessageText = await page.evaluate((element) => element.textContent, errorMessage);
     expect(errorMessageText).toBe(
-      'Введите координаты в формате: xx.xxxxx, yy.yyyyy или [xx.xxxxx, yy.yyyyy]'
+      'Введите координаты в формате: xx.xxxxx, yy.yyyyy или [xx.xxxxx, yy.yyyyy]',
     );
 
     // Проверяем, что модальное окно остается открытым

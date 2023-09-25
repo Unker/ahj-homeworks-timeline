@@ -1,3 +1,3 @@
 module.exports = {
-    testEnvironment: 'jsdom', // Указываем среду выполнения jsdom
+  testEnvironment: 'jsdom', // Указываем среду выполнения jsdom
 };
