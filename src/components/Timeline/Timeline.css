@@ -113,7 +113,11 @@
   animation-duration: 2s;
   animation-iteration-count: infinite;
   animation-timing-function: ease-in-out;
+}
 
+.post-button.not-implemented {
+  background-color: gray;
+  animation-name: none !important;
 }
 
 @keyframes coin {

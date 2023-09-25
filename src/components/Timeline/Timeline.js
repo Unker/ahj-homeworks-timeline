@@ -40,6 +40,7 @@ export default class TimelineApp {
 
     const audioButton = document.createElement("i");
     audioButton.classList.add('post-button', 'audio-button', 'fa', 'fa-microphone');
+    audioButton.classList.add('not-implemented');
     audioButton.addEventListener("click", () => {
       this.startAudioRecording();
     });
