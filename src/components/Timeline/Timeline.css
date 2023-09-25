@@ -54,6 +54,7 @@
 .video-container {
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 .audio-container,
@@ -68,7 +69,15 @@
 }
 
 .video-player {
-  width: 300px;
+  position: absolute;
+  right: 0px;
+  top: -300px;
+  height: 300px;
+}
+
+.post .video-player {
+  position: static;
+  height: 300px;
 }
 
 .content-timer {

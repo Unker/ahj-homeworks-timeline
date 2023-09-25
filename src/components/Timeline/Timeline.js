@@ -212,21 +212,6 @@ export default class TimelineApp {
     this.videoPlayer.srcObject = this.stream;
     this.videoPlayer.play();    // Запускаем видеопоток в видеоплеере
 
-    // Создаем и обновляем изображение видеоплеера в requestAnimationFrame
-    const updateVideoFrame = () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = this.videoPlayer.videoWidth;
-      canvas.height = this.videoPlayer.videoHeight;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(this.videoPlayer, 0, 0, canvas.width, canvas.height);
-
-      // Продолжаем обновлять кадры в requestAnimationFrame
-      requestAnimationFrame(updateVideoFrame);
-    };
-
-    // Начинаем обновление кадров
-    requestAnimationFrame(updateVideoFrame);
-
     // Запись
     this.videoRecorder = new MediaRecorder(this.stream);
     this.videoRecorder.start();
@@ -251,6 +236,7 @@ export default class TimelineApp {
 
       // Создаем объект URL для аудио
       this.videoUrl = URL.createObjectURL(videoBlob);
+      this.videoPlayer.srcObject = null;
       this.videoPlayer.src = this.videoUrl;
 
       // Останавливаем таймер
@@ -267,6 +253,9 @@ export default class TimelineApp {
     if (this.stream) {
       this.stream.getTracks().forEach((track) => track.stop());
     }
+
+    this.videoPlayer.muted = false;
+
     this.inputContainer.classList.remove('hide');
     this.videoContainer.classList.add('hide');
   }
