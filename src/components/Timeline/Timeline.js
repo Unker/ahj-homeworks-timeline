@@ -282,7 +282,7 @@ export default class TimelineApp {
       const coordinates = await this.getUserLocationFromApi();
       return coordinates;
     } catch (error) {
-      console.error('Ошибка получения координат через API:', error);
+      // console.error('Ошибка получения координат через API:', error);
       const manualCoordinates = await this.requestManualCoordinates();
       return manualCoordinates;
     }
@@ -314,6 +314,7 @@ export default class TimelineApp {
   }
 
   async requestManualCoordinates() {
+    // console.log('==================run requestManualCoordinates')
     return new Promise((resolve, reject) => {
       // Создаем элемент модального окна.
       const modal = document.createElement('div');
@@ -356,6 +357,7 @@ export default class TimelineApp {
       errMsg.textContent = '';
 
       form.addEventListener('submit', (e) => {
+        console.log('submit start');
         e.preventDefault();
 
         if (form.checkValidity()) {
@@ -367,7 +369,6 @@ export default class TimelineApp {
             // Если есть совпадение, извлекаем широту и долготу.
             const latitude = parseFloat(match[1]);
             const longitude = parseFloat(match[2]);
-            // this.handleUserLocation({ latitude, longitude });
             this.userCoords = {
               latitude,
               longitude,
