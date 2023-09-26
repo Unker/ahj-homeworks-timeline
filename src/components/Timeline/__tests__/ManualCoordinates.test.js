@@ -46,7 +46,7 @@ describe('requestManualCoordinates', () => {
     coordinatesInput.value = coordinates;
 
     const form = document.querySelector('.form-modal-location');
-    
+
     // console.log('-----',form)
 
     // const submitPromise = await new Promise((resolve) => {
@@ -70,10 +70,9 @@ describe('requestManualCoordinates', () => {
 
     // expect(timelineApp.userCoords).toEqual({ latitude, longitude });
     expect(1).toBe(1);
-
   });
 
-  // test.each(invalidCoordinates)('Ввод некорректных координат "%s" должен отображать сообщение об ошибке', (coordinates) => {
+  // test.each(invalidCoordinates)('Ввод некорректных координат "%s"', (coordinates) => {
   //   timelineApp.requestManualCoordinates();
   //   const coordinatesInput = document.querySelector('.manual-coordinates');
   //   coordinatesInput.value = coordinates;
