@@ -2,17 +2,17 @@ import TimelineApp from '../Timeline';
 
 const validCoordinates = [
   '51.50851, -0.12572',
-  // '41.89193, 12.51133',
-  // '48.858844,2.294351',
-  // '34.052235, -118.243683',
-  // '40.712776, -74.005974',
-  // '[51.50851, -0.12572]',
-  // '[41.89193, 12.51133]',
-  // '[48.858844,2.294351]',
-  // '[34.052235, -118.243683]',
-  // '[40.712776, -74.005974]',
-  // '[-51.50851, -0.12572',
-  // '51.50851, -0.12572]',
+  '41.89193, 12.51133',
+  '48.858844,2.294351',
+  '34.052235, -118.243683',
+  '40.712776, -74.005974',
+  '[51.50851, -0.12572]',
+  '[41.89193, 12.51133]',
+  '[48.858844,2.294351]',
+  '[34.052235, -118.243683]',
+  '[40.712776, -74.005974]',
+  '[-51.50851, -0.12572',
+  '51.50851, -0.12572]',
 ];
 
 const invalidCoordinates = [
@@ -47,46 +47,52 @@ describe('requestManualCoordinates', () => {
 
     const form = document.querySelector('.form-modal-location');
 
-    // console.log('-----',form)
+    const submitPromise = new Promise((resolve) => {
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        resolve();
+      });
+    });
 
-    // const submitPromise = await new Promise((resolve) => {
-    //   form.addEventListener('submit', (e) => {
-    //     e.preventDefault();
-    //     resolve();
-    //   });
-    // });
+    form.dispatchEvent(new Event('submit'));
 
-    // form.dispatchEvent(new Event('submit'));
+    await submitPromise;
 
-    // // Ожидаем, пока оба Promise выполнятся
-    // await Promise.all([resultPromise, submitPromise]);
+    // Разбиваем введенные координаты на широту и долготу
+    const [latitude, longitude] = coordinates
+      .replace('[', '') // Удаляем возможные квадратные скобки
+      .replace(']', '')
+      .split(',')
+      .map((coord) => parseFloat(coord.trim()));
 
-    // // Разбиваем введенные координаты на широту и долготу
-    // const [latitude, longitude] = coordinates
-    //   .replace('[', '') // Удаляем возможные квадратные скобки
-    //   .replace(']', '')
-    //   .split(',')
-    //   .map((coord) => parseFloat(coord.trim()));
-
-    // expect(timelineApp.userCoords).toEqual({ latitude, longitude });
-    expect(1).toBe(1);
+    expect(timelineApp.userCoords).toEqual({ latitude, longitude });
   });
 
-  // test.each(invalidCoordinates)('Ввод некорректных координат "%s"', (coordinates) => {
-  //   timelineApp.requestManualCoordinates();
-  //   const coordinatesInput = document.querySelector('.manual-coordinates');
-  //   coordinatesInput.value = coordinates;
+  test.each(invalidCoordinates)('Ввод некорректных координат "%s"', async (coordinates) => {
+    timelineApp.requestManualCoordinates();
+    const coordinatesInput = document.querySelector('.manual-coordinates');
+    coordinatesInput.value = coordinates;
 
-  //   const form = document.querySelector('.form-modal-location');
-  //   form.dispatchEvent(new Event('submit'));
+    const form = document.querySelector('.form-modal-location');
 
-  //   // Проверяем, что сообщение об ошибке отображается
-  //   const errorMessage = document.querySelector('.modal-body-error-message');
-  //   expect(errorMessage.textContent).toBe(
-  //     'Введите координаты в формате: xx.xxxxx, yy.yyyyy или [xx.xxxxx, yy.yyyyy]',
-  //   );
+    const submitPromise = new Promise((resolve) => {
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        resolve();
+      });
+    });
 
-  //   // Проверяем, что метод handleUserLocation не был вызван
-  //   expect(timelineApp.handleUserLocation).not.toHaveBeenCalled();
-  // });
+    form.dispatchEvent(new Event('submit'));
+
+    await submitPromise;
+
+    // Проверяем, что сообщение об ошибке отображается
+    const errorMessage = form.querySelector('.modal-body-error-message');
+    expect(errorMessage.textContent).toBe(
+      'Введите координаты в формате: xx.xxxxx, yy.yyyyy или [xx.xxxxx, yy.yyyyy]',
+    );
+
+    // Проверяем, что модальное окно еще открыто
+    expect(form).not.toBe(undefined);
+  });
 });

@@ -294,7 +294,6 @@ export default class TimelineApp {
         // Запрос координат пользователя через Geolocation API.
         navigator.geolocation.getCurrentPosition(
           (position) => {
-            console.log('position', position);
             this.userCoords = {
               latitude: position.coords.latitude,
               longitude: position.coords.longitude,
@@ -314,7 +313,6 @@ export default class TimelineApp {
   }
 
   async requestManualCoordinates() {
-    // console.log('==================run requestManualCoordinates')
     return new Promise((resolve, reject) => {
       // Создаем элемент модального окна.
       const modal = document.createElement('div');
@@ -357,14 +355,11 @@ export default class TimelineApp {
       errMsg.textContent = '';
 
       form.addEventListener('submit', (e) => {
-        console.log('submit start');
         e.preventDefault();
 
         if (form.checkValidity()) {
           const manualCoordinatesInput = document.querySelector('.manual-coordinates');
           const match = manualCoordinatesInput.value.trim().match(regexCoordinates);
-          console.log('valid');
-          console.log('match', match);
           if (match) {
             // Если есть совпадение, извлекаем широту и долготу.
             const latitude = parseFloat(match[1]);
@@ -373,7 +368,6 @@ export default class TimelineApp {
               latitude,
               longitude,
             };
-            console.log({ latitude, longitude });
             modal.remove();
             resolve(this.userCoords);
           }
@@ -383,7 +377,6 @@ export default class TimelineApp {
         }
 
         errMsg.textContent = 'Введите координаты в формате: xx.xxxxx, yy.yyyyy или [xx.xxxxx, yy.yyyyy]';
-        console.log('submit');
       });
 
       closeBtn.addEventListener('click', (e) => {
@@ -419,7 +412,6 @@ export default class TimelineApp {
 
   // Создаем элемент для отображения координат
   async createCoordinatesElement(coordinates) {
-    console.log('coordinates', coordinates);
     const coordinatesElement = document.createElement('div');
     coordinatesElement.classList.add('post-coordinates');
 

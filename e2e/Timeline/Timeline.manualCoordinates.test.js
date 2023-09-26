@@ -30,6 +30,9 @@ describe('requestManualCoordinates', () => {
 
     // Проверяем, что модальное окно было закрыто
     await page.waitForSelector('.modal', { hidden: true });
+
+    const modal = await page.$('.modal');
+    expect(modal).toBeFalsy();
   });
 
   it('should handle invalid coordinates input', async () => {
